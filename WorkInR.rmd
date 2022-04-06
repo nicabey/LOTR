@@ -15,13 +15,11 @@ The data for this project was found at https://www.kaggle.com/datasets/paultimot
 
 ```{r}
 data = read.csv ('https://raw.githubusercontent.com/nicabey/LOTR/main/lotr_characters.csv?token=GHSAT0AAAAAABS2BA62KNN5FIJYTLUO2HLAYSEV5XA')
-
 scriptsdata = read.csv('https://raw.githubusercontent.com/nicabey/LOTR/main/lotr_scripts.csv?token=GHSAT0AAAAAABS2BA63TGRMJVAXOAI52E46YSEV6IA')
 ```
 #Sediment Analysis
 ```{r}
 install.packages("SentimentAnalysis")
-
 library(SentimentAnalysis)
 ```
 #Sentiment Analysis 
@@ -31,57 +29,52 @@ what characters do I have data on in fellowship of the ring.
 
 
 ```{r}
-
 sentiment1 <- analyzeSentiment(scriptsdata$dialog)
 convertToBinaryResponse(sentiment1)
-
 ```
 ```{r}
-
 sentiment1 <- cbind(scriptsdata,sentiment1)
-
 head(sentiment1)
-
 ```
 
  
 
 ```{r}
-
 library(dplyr)
-
  
-
 sentiment1[sentiment1['movie'] =="The Fellowship of the Ring ",]
-
 ```
 
  
 
 ```{r}
-
-sentiment1 %>%
-
+sentimentagg <- sentiment1 %>%
   filter(movie == "The Fellowship of the Ring ") %>%
-
   group_by(char)%>%
+  summarise('meanSentiment' = mean(SentimentGI, na.rm = TRUE))
 
-  summarise(mean(SentimentGI))
-
+sentimentagg
  
-
 ``` 
+```{r}
+library(stringr)
 
+data <- data %>% 
+  mutate(char = str_to_upper(name))
+
+FOTRwithSentiment <- data %>% right_join(sentimentagg,by = 'char')
+
+FOTRwithSentiment
+
+```
  
 
 ```{r}
-
 sentiment1 <- sentiment1 %>%
-
   rowwise() %>%
-
   mutate(Positive = (SentimentGI>0))
 
+head(sentiment1)
 ```
 Sentiment1 shows us each character and whether or the mean of their sentiment in that particular line of the film is positive or not indicated by a "TRUE" or a "FALSE"
 
