@@ -44,7 +44,8 @@ sentiment1 <- cbind(scriptsdata,sentiment1)
 head(sentiment1)
 
 ```
-
+#Remove voice overs etc. 
+Remvoving unnecessary things like the voice over part of a characters name to *hopefully* match them to the "data" dataset and classify races as good or evil.
 ```{r}
 char<- scriptsdata$char
 
