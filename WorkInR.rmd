@@ -15,67 +15,87 @@ The data for this project was found at https://www.kaggle.com/datasets/paultimot
 
 ```{r}
 data = read.csv ('https://raw.githubusercontent.com/nicabey/LOTR/main/lotr_characters.csv?token=GHSAT0AAAAAABS2BA62KNN5FIJYTLUO2HLAYSEV5XA')
+
 scriptsdata = read.csv('https://raw.githubusercontent.com/nicabey/LOTR/main/lotr_scripts.csv?token=GHSAT0AAAAAABS2BA63TGRMJVAXOAI52E46YSEV6IA')
 ```
-#Sediment Analysis
+#Sentiment Analysis
 ```{r}
 install.packages("SentimentAnalysis")
+
 library(SentimentAnalysis)
-```
-#Sentiment Analysis 
-I want to know if what a character is saying is positive or negative and then hopefully be able to classify that charater as good or evil based on their sentiment, see how that matches up with how i have and maybe even how the class has classified the characters as good and evil. maybe make a form with each of the characters from the book on it and my classmates could fill out if they think the character is good or bad as they read, then at the end take their data, what they think with the character's sentiment. nt meaning that the character is good ore evil based on sentiment because gollum but it might be interesting to see how what we tink as a class compares with what the data tells us. 
 
-what characters do I have data on in fellowship of the ring. 
-
-
-```{r}
-sentiment1 <- analyzeSentiment(scriptsdata$dialog)
-convertToBinaryResponse(sentiment1)
-```
-```{r}
-sentiment1 <- cbind(scriptsdata,sentiment1)
-head(sentiment1)
-```
-
- 
-
-```{r}
-library(dplyr)
- 
-sentiment1[sentiment1['movie'] =="The Fellowship of the Ring ",]
-```
-
- 
-
-```{r}
-sentimentagg <- sentiment1 %>%
-  filter(movie == "The Fellowship of the Ring ") %>%
-  group_by(char)%>%
-  summarise('meanSentiment' = mean(SentimentGI, na.rm = TRUE))
-
-sentimentagg
- 
-``` 
-```{r}
 library(stringr)
 
-data <- data %>% 
-  mutate(char = str_to_upper(name))
+library(dplyr)
+```
+#Sentiment Analysis 
+I want to know if what a character is saying is positive or negative and then hopefully be able to classify that charater as good or evil based on their sentiment, see how that matches up with how i have and maybe even how the class has classified the characters as good and evil. maybe make a form with each of the characters from the book on it and my classmates could fill out if they think the character is good or bad as they read, then at the end take their data, what they think with the character's sentiment. not meaning that the character is good ore evil based on sentiment because gollum but it might be interesting to see how what we tink as a class compares with what the data tells us. 
+```{r}
 
-FOTRwithSentiment <- data %>% right_join(sentimentagg,by = 'char')
+sentiment1 <- analyzeSentiment(scriptsdata$dialog)
+convertToBinaryResponse(sentiment1)
+head(sentiment1)
+```
 
-FOTRwithSentiment
+```{r}
 
+sentiment1 <- cbind(scriptsdata,sentiment1)
+
+head(sentiment1)
+
+```
+
+```{r}
+char<- scriptsdata$char
+
+scriptsdata <- scriptsdata %>%
+  mutate(char = str_replace_all(string = scriptsdata$char, pattern =" VOICE OVER",replacement = ""))
+
+scriptsdata <- scriptsdata %>%
+  mutate(char = str_replace_all(string = scriptsdata$char, pattern =" VOICE-OVER",replacement = ""))
+
+#scriptsdata <- scriptsdata %>%
+  #mutate(char = str_replace_all(string = scriptsdata$char, pattern =" VOICEOVER",replacement = ""))
+
+```
+
+```{r}
+#str_replace(scriptsdata$char," VOICEOVER","")
+#str_replace_all(scriptsdata$char,"VOICEOVER","")
+#str_replace_all(scriptsdata$char,"SAM","SAM")
+```
+```{r}
+#str_replace(scriptsdata$char,"MOUTH OF ","")
 ```
  
 
 ```{r}
+
+library(dplyr)
+
+ 
+
+sentiment1[sentiment1['movie'] =="The Fellowship of the Ring ",]
+
+```
+
+ 
+
+```{r}
+sentiment1 %>%
+  filter(movie == "The Fellowship of the Ring ") %>%
+  group_by(char)%>%
+  summarise(mean(SentimentGI))
+``` 
+
+ 
+
+```{r}
+
 sentiment1 <- sentiment1 %>%
+
   rowwise() %>%
+
   mutate(Positive = (SentimentGI>0))
 
-head(sentiment1)
 ```
-Sentiment1 shows us each character and whether or the mean of their sentiment in that particular line of the film is positive or not indicated by a "TRUE" or a "FALSE"
-
-Now I want to summarize 
