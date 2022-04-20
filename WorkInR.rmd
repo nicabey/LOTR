@@ -22,9 +22,9 @@ data = read.csv ('https://raw.githubusercontent.com/nicabey/LOTR/main/lotr_chara
 scriptsdata = read.csv('https://raw.githubusercontent.com/nicabey/LOTR/main/lotr_scripts.csv?token=GHSAT0AAAAAABS2BA63TGRMJVAXOAI52E46YSEV6IA')
 ```
 # Abstract:
-FROM GRASSO ASSIGNMENT SHEET---> Tolkien and Language: why the languages matter, why we can actually learn a little Elvish, Dwarfish, etc., how they relate to old languages such as Anglo-Saxon, etc. 
+>FROM GRASSO ASSIGNMENT SHEET---> Tolkien and Language: why the languages matter, why we can actually learn a little Elvish, Dwarfish, etc., how they relate to old languages such as Anglo-Saxon, etc. 
 
-Why does language matter? The question asked throughout this project was "Does what you say reflect who you are? The goal of this project is to examine what characters say in each of the 3 Lord of the Rings movies, how they change? and how they compare with their true perception of the character, possibly the characters race. Example: Is Sam a good character? I would say yes, but does this match up with his speech? does he change throughout the 3 films. 
+>Why does language matter? The question asked throughout this project was "Does what you say reflect who you are? The goal of this project is to examine what characters say in each of the 3 Lord of the Rings movies, how they change? and how they compare with their true perception of the character, possibly the characters race. Example: Is Sam a good character? I would say yes, but does this match up with his speech? does he change throughout the 3 films. 
 
 # Data Cleaning. 
 In the movie scipts data, there is some unnecessary differentiation between what character is speaking. Movie scripts will identify a character's voice sometimes and seperate it from the character. "Frodo Voice-over" vs. Frodo speaking to another character. All are things that The character is saying, so by cleaning up the data to remove unnecesary identifiers like voice over we can get more of what each character says. 
