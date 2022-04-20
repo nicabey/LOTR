@@ -13,7 +13,7 @@ library(stringr)
 library(dplyr)
 ```
 
-#Import Data
+# Import Data
 
 The data for this project was found at https://www.kaggle.com/datasets/paultimothymooney/lord-of-the-rings-data?select=lotr_characters.csv. With this data I'd like to know if can you classify a character's race/gender based on their date of birth. Maybe based on how many lines they have in the book/ movie(I'll need this data)? K-nearest neighbors, PCA?
 
@@ -21,12 +21,12 @@ The data for this project was found at https://www.kaggle.com/datasets/paultimot
 data = read.csv ('https://raw.githubusercontent.com/nicabey/LOTR/main/lotr_characters.csv?token=GHSAT0AAAAAABS2BA62KNN5FIJYTLUO2HLAYSEV5XA')
 scriptsdata = read.csv('https://raw.githubusercontent.com/nicabey/LOTR/main/lotr_scripts.csv?token=GHSAT0AAAAAABS2BA63TGRMJVAXOAI52E46YSEV6IA')
 ```
-##Abstract:)
+# Abstract:
 FROM GRASSO ASSIGNMENT SHEET---> Tolkien and Language: why the languages matter, why we can actually learn a little Elvish, Dwarfish, etc., how they relate to old languages such as Anglo-Saxon, etc. 
 
 Why does language matter? The question asked throughout this project was "Does what you say reflect who you are? The goal of this project is to examine what characters say in each of the 3 Lord of the Rings movies, how they change? and how they compare with their true perception of the character, possibly the characters race. Example: Is Sam a good character? I would say yes, but does this match up with his speech? does he change throughout the 3 films. 
 
-## Data Cleaning. 
+# Data Cleaning. 
 In the movie scipts data, there is some unnecessary differentiation between what character is speaking. Movie scripts will identify a character's voice sometimes and seperate it from the character. "Frodo Voice-over" vs. Frodo speaking to another character. All are things that The character is saying, so by cleaning up the data to remove unnecesary identifiers like voice over we can get more of what each character says. 
 
 This will also help *hopefully*  later match each character to the "data" dataset and classify races as good or evil.
@@ -42,26 +42,29 @@ scriptsdata <- scriptsdata %>%
   mutate(char = str_replace_all(string = scriptsdata$char, pattern =" VOICE",replacement = ""))
 ```
 
-## Sentiment Analysis
+# Sentiment Analysis
 
 Determining good or bad is relative, yes. There is a way to automate it. Sentiment Analysis is that way. Sentiment Analysis is a program that looks a strings of text and assigns to them a positive, negative or neutral value. Businesses often use this to examine consumer feedback ex. social media, and product reviews. The goal in this section is to examine the lines each character says in "The Fellowship of the Ring", "The Two Towers", and "The Return of the King" and determine a characters sentiment.
-##Sentiment in practice?
-
-
-
+# Sentiment in practice?
 ```{r}
+statement = "I am very nervous about presenting in class"
+statement2 = "I am excited for graduation next week"
+t(analyzeSentiment(c(statement, statement2))[,1:4])
+```
+
+```{r title, include=FALSE}
 sentiment1 <- analyzeSentiment(scriptsdata$dialog)
 convertToBinaryResponse(sentiment1)
-include=FALSE
+
 ```
 
 ```{r}
 sentiment1 <- cbind(scriptsdata,sentiment1)
-head(sentiment1)
+t(sentiment1[10,])
 ```
 
 ```{r}
-sentiment1[sentiment1['movie'] =="The Fellowship of the Ring ",]
+head(sentiment1[sentiment1['movie'] =="The Fellowship of the Ring ",])
 ```
 
 
@@ -69,17 +72,19 @@ sentiment1[sentiment1['movie'] =="The Fellowship of the Ring ",]
 sentiment1 %>%
   filter(movie == "The Fellowship of the Ring ") %>%
   group_by(char)%>%
-  summarise(mean(SentimentGI, na.rm = TRUE))
-head(sentiment1)
+  summarise(mean(SentimentGI, na.rm = TRUE)) %>%
+  head(10)
+#head(sentiment1)
 ``` 
-##Do people change 
+# Do People Change? 
 Now that we have identified what characters are saying as good or bad, are we able to see that they have changed over time? 
 ```{r}
 sentiment1 %>%
   group_by(char,movie)%>%
   summarise(mean(SentimentGI, na.rm = TRUE)) %>%
-  arrange(char,match(movie, c("The Fellowship of the Ring ","The Two Towers ","The Return of the King " )))
-head(sentiment1)
+  arrange(char,match(movie, c("The Fellowship of the Ring ","The Two Towers ","The Return of the King " ))) %>%
+  head(7)
+
 ``` 
 ```{r}
 frodosarc <- sentiment1 %>%
@@ -100,6 +105,7 @@ frodosarc %>%
   geom_line()
   
 ```
+
 This is all over the place. Why? It looks like my scripts data is not as clean as I'd hoped for. Some of the lines are out of order, the entire Fellowship of the Ring script is spliced throughout the return of the king film. In a perfect world we would hope to see that as the scripts progressed the characters sentiment would also, either in a negative or a positive way. 
 ```{r}
 sentiment1 <- sentiment1 %>%
@@ -113,24 +119,36 @@ samschange <- sentiment1 %>%
   filter(char == "SAM") %>%
   select(SentimentGI) %>%
   filter(!is.na(SentimentGI))
-
 ```
 ```{r}
 samschange$TalkingSequence = 1:203
 ```
 
 ```{r}
-library(ggplot2)
 samschange %>%
   ggplot(mapping = aes(y = SentimentGI, x = TalkingSequence)) +
   geom_line()
 ```
-##Sentiment change over 3 movies 
+# Sentiment Change over 3 Movies 
 this wont be interesting because its only 3 data points but its better than nothing 
 Bar chart for frodo mean sentiment in 3 movies 
 
+```{r}
+frodoavg <- sentiment1 %>%
+  filter(char == 'FRODO') %>%
+  arrange(match(movie, c("The Fellowship of the Ring ","The Two Towers ","The Return of the King " ))) %>%
+  group_by(movie) %>%
+  summarise(meanSGI = mean(SentimentGI, na.rm = TRUE))
 
-##Conclusion 
+frodoavg$movie <- factor(frodoavg$movie, levels = c("The Fellowship of the Ring ","The Two Towers ","The Return of the King " ))
+
+ggplot(frodoavg, aes(x = movie, y = meanSGI)) +
+  geom_col()
+
+```
+
+
+# Conclusion 
 ---> Talk about what else can be done if I had more time. ---> drawing conclusions about races. 
 
 what I learned---> data cleaning, Sentiment analysis
