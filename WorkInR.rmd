@@ -7,7 +7,6 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
 #install.packages("SentimentAnalysis")
 library(SentimentAnalysis)
 library(stringr)
@@ -22,10 +21,17 @@ The data for this project was found at https://www.kaggle.com/datasets/paultimot
 data = read.csv ('https://raw.githubusercontent.com/nicabey/LOTR/main/lotr_characters.csv?token=GHSAT0AAAAAABS2BA62KNN5FIJYTLUO2HLAYSEV5XA')
 scriptsdata = read.csv('https://raw.githubusercontent.com/nicabey/LOTR/main/lotr_scripts.csv?token=GHSAT0AAAAAABS2BA63TGRMJVAXOAI52E46YSEV6IA')
 ```
-## Remove voice overs etc. 
-Removing unnecessary things like the voice over part of a characters name to *hopefully* match them to the "data" dataset and classify races as good or evil.
-```{r}
+##Abstract:)
+FROM GRASSO ASSIGNMENT SHEET---> Tolkien and Language: why the languages matter, why we can actually learn a little Elvish, Dwarfish, etc., how they relate to old languages such as Anglo-Saxon, etc. 
 
+Why does language matter? The question asked throughout this project was "Does what you say reflect who you are? The goal of this project is to examine what characters say in each of the 3 Lord of the Rings movies, how they change? and how they compare with their true perception of the character, possibly the characters race. Example: Is Sam a good character? I would say yes, but does this match up with his speech? does he change throughout the 3 films. 
+
+## Data Cleaning. 
+In the movie scipts data, there is some unnecessary differentiation between what character is speaking. Movie scripts will identify a character's voice sometimes and seperate it from the character. "Frodo Voice-over" vs. Frodo speaking to another character. All are things that The character is saying, so by cleaning up the data to remove unnecesary identifiers like voice over we can get more of what each character says. 
+
+This will also help *hopefully*  later match each character to the "data" dataset and classify races as good or evil.
+
+```{r}
 scriptsdata <- scriptsdata %>%
   mutate(char = str_replace_all(string = scriptsdata$char, pattern =" VOICE OVER",replacement = ""))
 scriptsdata <- scriptsdata %>%
@@ -36,18 +42,17 @@ scriptsdata <- scriptsdata %>%
   mutate(char = str_replace_all(string = scriptsdata$char, pattern =" VOICE",replacement = ""))
 ```
 
-
-
-
-
-
 ## Sentiment Analysis
 
-I want to know if what a character is saying is positive or negative and then hopefully be able to classify that charater as good or evil based on their sentiment, see how that matches up with how i have and maybe even how the class has classified the characters as good and evil. maybe make a form with each of the characters from the book on it and my classmates could fill out if they think the character is good or bad as they read, then at the end take their data, what they think with the character's sentiment. not meaning that the character is good ore evil based on sentiment because gollum but it might be interesting to see how what we tink as a class compares with what the data tells us. 
+Determining good or bad is relative, yes. There is a way to automate it. Sentiment Analysis is that way. Sentiment Analysis is a program that looks a strings of text and assigns to them a positive, negative or neutral value. Businesses often use this to examine consumer feedback ex. social media, and product reviews. The goal in this section is to examine the lines each character says in "The Fellowship of the Ring", "The Two Towers", and "The Return of the King" and determine a characters sentiment.
+##Sentiment in practice?
+
+
+
 ```{r}
 sentiment1 <- analyzeSentiment(scriptsdata$dialog)
 convertToBinaryResponse(sentiment1)
-head(sentiment1)
+include=FALSE
 ```
 
 ```{r}
@@ -55,35 +60,26 @@ sentiment1 <- cbind(scriptsdata,sentiment1)
 head(sentiment1)
 ```
 
-
-
-```{r}
-#str_replace(scriptsdata$char," VOICEOVER","")
-#str_replace_all(scriptsdata$char,"VOICEOVER","")
-#str_replace_all(scriptsdata$char,"SAM","SAM")
-```
-```{r}
-#str_replace(scriptsdata$char,"MOUTH OF ","")
-```
- 
-
 ```{r}
 sentiment1[sentiment1['movie'] =="The Fellowship of the Ring ",]
 ```
 
- 
 
 ```{r}
 sentiment1 %>%
   filter(movie == "The Fellowship of the Ring ") %>%
   group_by(char)%>%
   summarise(mean(SentimentGI, na.rm = TRUE))
+head(sentiment1)
 ``` 
+##Do people change 
+Now that we have identified what characters are saying as good or bad, are we able to see that they have changed over time? 
 ```{r}
 sentiment1 %>%
   group_by(char,movie)%>%
   summarise(mean(SentimentGI, na.rm = TRUE)) %>%
   arrange(char,match(movie, c("The Fellowship of the Ring ","The Two Towers ","The Return of the King " )))
+head(sentiment1)
 ``` 
 ```{r}
 frodosarc <- sentiment1 %>%
@@ -92,22 +88,51 @@ frodosarc <- sentiment1 %>%
   select(SentimentGI) %>%
   filter(!is.na(SentimentGI))
 ```
+
 ```{r}
 frodosarc$TalkingSequence = 1:212
 ```
+
 ```{r}
 library(ggplot2)
-
 frodosarc %>%
   ggplot(mapping = aes(y = SentimentGI, x = TalkingSequence)) +
   geom_line()
   
 ```
-
- 
-
+This is all over the place. Why? It looks like my scripts data is not as clean as I'd hoped for. Some of the lines are out of order, the entire Fellowship of the Ring script is spliced throughout the return of the king film. In a perfect world we would hope to see that as the scripts progressed the characters sentiment would also, either in a negative or a positive way. 
 ```{r}
 sentiment1 <- sentiment1 %>%
   rowwise() %>%
   mutate(Positive = (SentimentGI>0))
 ```
+
+```{r}
+samschange <- sentiment1 %>%
+  arrange(match(movie, c("The Fellowship of the Ring ","The Two Towers ","The Return of the King " ))) %>%
+  filter(char == "SAM") %>%
+  select(SentimentGI) %>%
+  filter(!is.na(SentimentGI))
+
+```
+```{r}
+samschange$TalkingSequence = 1:203
+```
+
+```{r}
+library(ggplot2)
+samschange %>%
+  ggplot(mapping = aes(y = SentimentGI, x = TalkingSequence)) +
+  geom_line()
+```
+##Sentiment change over 3 movies 
+this wont be interesting because its only 3 data points but its better than nothing 
+Bar chart for frodo mean sentiment in 3 movies 
+
+
+##Conclusion 
+---> Talk about what else can be done if I had more time. ---> drawing conclusions about races. 
+
+what I learned---> data cleaning, Sentiment analysis
+
+draw some sort of conclusion related to the abstract...
